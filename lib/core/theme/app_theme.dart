@@ -27,7 +27,7 @@ class AppTheme {
         iconTheme: IconThemeData(color: _darkTextColor),
         titleTextStyle: TextStyle(color: _darkTextColor, fontSize: 20, fontWeight: FontWeight.bold),
       ),
-      bottomAppBarTheme: const BottomAppBarTheme(
+      bottomAppBarTheme: const BottomAppBarThemeData(
         color: Colors.white,
         elevation: 2,
       ),
