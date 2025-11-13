@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "129067762419",
+    "project_id": "famai-eedea",
+    "storage_bucket": "famai-eedea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:129067762419:android:31a9920c8d6b577c2b6d86",
+        "android_client_info": {
+          "package_name": "com.shujaacode.famai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzQl6m4GtCUuHH2VDkmcXxXNtOXOx6uJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
