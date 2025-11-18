@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can only read and write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Users can manage their own planting plans
+      match /planting_plans/{planId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Users can manage their own conversations and messages
+      match /conversations/{conversationId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+        match /messages/{messageId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
+    }
+
+    // Authenticated users can read and write to the community posts
+    match /community_posts/{postId} {
+      allow read, write: if request.auth != null;
+
+      // Authenticated users can manage comments on any post
+      match /comments/{commentId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+  }
+}
