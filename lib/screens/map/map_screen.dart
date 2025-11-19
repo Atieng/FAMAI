@@ -77,7 +77,24 @@ class _MapScreenState extends State<MapScreen> {
       });
 
       await _mapService.saveFarmBoundary(_polygonPoints);
-      _clearPoints();
+
+      final area = _computeArea(_polygonPoints);
+      final areaInHectares = area / 10000;
+
+      // ignore: use_build_context_synchronously
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Farm Analysis'),
+          content: Text('Your farm area is ${areaInHectares.toStringAsFixed(2)} hectares.\n\nWe are working on providing more insights with AI.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -86,6 +103,22 @@ class _MapScreenState extends State<MapScreen> {
       _polygonPoints.clear();
       _markers.clear();
     });
+  }
+
+  double _computeArea(List<LatLng> points) {
+    double area = 0.0;
+    if (points.length < 3) return 0.0;
+
+    for (int i = 0; i < points.length; i++) {
+      final p1 = points[i];
+      final p2 = points[(i + 1) % points.length];
+      area += (p1.longitude * p2.latitude - p2.longitude * p1.latitude);
+    }
+
+    area = area.abs() / 2.0;
+    // Convert to square meters: 1 degree of latitude is about 111 km, and longitude varies but we assume same.
+    // This is a very rough estimate and not accurate for large areas or near the poles.
+    return area * (111000 * 111000);
   }
 
   @override
