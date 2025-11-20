@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:famai/models/conversation_model.dart';
 import 'package:famai/services/chat_service.dart';
 import 'package:famai/screens/chat/chat_screen.dart';
+import 'package:famai/utils/sample_data_util.dart';
 
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
@@ -13,12 +14,35 @@ class ConversationsScreen extends StatefulWidget {
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
   final _chatService = ChatService();
+  bool _isLoading = true;
+  
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+  
+  Future<void> _initializeData() async {
+    try {
+      // Add sample conversations for the demo
+      final sampleData = SampleDataUtil();
+      await sampleData.createSampleConversation();
+    } catch (e) {
+      debugPrint('Error initializing sample data: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Conversations'),
+        title: const Text('AI Assistant'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -32,7 +56,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : StreamBuilder<QuerySnapshot>(
         stream: _chatService.getConversations(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {

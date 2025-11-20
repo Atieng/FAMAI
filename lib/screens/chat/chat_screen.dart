@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:famai/models/chat_message.dart';
 import 'package:famai/services/chat_service.dart';
-import 'package:famai/models/conversation_model.dart';
+import 'package:famai/widgets/chat_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
   final String? conversationId;
@@ -38,10 +38,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
     setState(() => _isLoading = true);
 
-    // If it's a new chat, create the conversation first
     if (_currentConversationId == null) {
       final newConversationId = await _chatService.createNewConversation(messageText);
-      // Replace the current screen with a new one that has the ID
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -61,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Famai Chat')),
+      appBar: AppBar(title: const Text('Famai Assistant')),
       body: Column(
         children: [
           Expanded(
@@ -81,53 +79,55 @@ class _ChatScreenState extends State<ChatScreen> {
                   final data = doc.data() as Map<String, dynamic>;
                   return ChatMessage(
                     message: data['message'],
-                    author: data['author'] == MessageAuthor.user.toString()
+                    author: data['author'] == 'user'
                         ? MessageAuthor.user
                         : MessageAuthor.model,
-                    timestamp: data['timestamp'],
+                    timestamp: data['timestamp'] ?? Timestamp.now(),
                   );
                 }).toList();
 
-                return ListView.builder(
+                return ListView.separated(
                   reverse: true,
+                  padding: const EdgeInsets.all(16.0),
                   itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    return ListTile(
-                      title: Text(message.message),
-                      subtitle: Text(message.author.toString().split('.').last),
-                    );
-                  },
+                  itemBuilder: (context, index) => ChatBubble(message: messages[index]),
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
                 );
               },
             ),
           ),
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                      hintText: 'Ask Famai anything...',
-                    ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
+          _buildTextInput(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTextInput() {
+    return Material(
+      elevation: 8,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _textController,
+                decoration: const InputDecoration(
+                  hintText: 'Ask me anything...',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                ),
+                onSubmitted: (_) => _sendMessage(),
+              ),
+            ),
+            IconButton(
+              icon: _isLoading
+                  ? const CircularProgressIndicator()
+                  : const Icon(Icons.send),
+              onPressed: _sendMessage,
+            ),
+          ],
+        ),
       ),
     );
   }

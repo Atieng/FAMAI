@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:famai/models/weather_model.dart';
-import 'package:famai/utils/secrets.dart';
 
 class WeatherService {
-  final String _apiKey = openWeatherMapApiKey;
+  // Using a temporary API key for development only - replace in production
+  final String _apiKey = '1234567890abcdef1234567890abcdef'; // Replace with your actual API key
   final String _baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
 
   Future<Weather> getWeather(double lat, double lon) async {

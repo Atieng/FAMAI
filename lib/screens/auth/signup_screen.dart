@@ -28,11 +28,14 @@ class _SignupScreenState extends State<SignupScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        await _firebaseService.signUpWithEmailAndPassword(
+        final user = await _firebaseService.signUpWithEmailAndPassword(
           _nameController.text.trim(),
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
+        if (user != null) {
+          // This call was incorrect, the service method handles it now.
+        }
         if (mounted) {
           Navigator.of(context).pop(); // Go back to login screen after signup
         }

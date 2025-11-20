@@ -1,11 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseFirestore, QuerySnapshot, SetOptions;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:famai/models/chat_message.dart';
 
 class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> createUserDocument(User user, String name) async {
+    await _firestore.collection('users').doc(user.uid).set({
+      'name': name,
+      'email': user.email,
+      'createdAt': DateTime.now().toString(),
+    }, SetOptions(merge: true));
+  }
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
@@ -50,12 +58,31 @@ class FirebaseService {
         idToken: googleAuth.idToken,
       );
 
-      UserCredential result = await _auth.signInWithCredential(credential);
-      User? user = result.user;
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
 
-      if (user != null && result.additionalUserInfo!.isNewUser) {
-        await _createUserDocument(user.uid, user.displayName ?? '', user.email ?? '');
+      if (user != null) {
+        // Create or update the user document in Firestore
+        final userDocRef = _firestore.collection('users').doc(user.uid);
+        final userDoc = await userDocRef.get();
+
+        if (!userDoc.exists) {
+          // New user, create the document
+          await userDocRef.set({
+            'name': user.displayName,
+            'email': user.email,
+            'profile_picture': user.photoURL,
+          });
+        } else {
+          // Existing user, update if necessary
+          await userDocRef.set({
+            'name': user.displayName,
+            'email': user.email,
+            'profile_picture': user.photoURL,
+          }, SetOptions(merge: true));
+        }
       }
+
 
       return user;
     } catch (e) {
@@ -68,8 +95,8 @@ class FirebaseService {
       'uid': uid,
       'name': name,
       'email': email,
-      'createdAt': Timestamp.now(),
-    });
+      'createdAt': DateTime.now().toString(),
+    }, SetOptions(merge: true));
   }
 
   Future<void> saveChatMessage(ChatMessage message) async {

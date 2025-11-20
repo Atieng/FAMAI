@@ -20,6 +20,21 @@ service cloud.firestore {
           allow read, write: if request.auth != null && request.auth.uid == userId;
         }
       }
+      
+      // Users can manage their own farm lands and maps
+      match /lands/{landId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Farm map feature
+      match /farm_maps/{mapId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        
+        // Allow collections within farm maps
+        match /{collection}/{docId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
     }
 
     // Authenticated users can read and write to the community posts
