@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famai/models/post_model.dart';
+import 'package:famai/models/comment_model.dart';
 
 class CommunityService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -67,12 +68,39 @@ class CommunityService {
     });
   }
 
-  Stream<QuerySnapshot> getComments(String postId) {
+  Stream<List<Comment>> getComments(String postId) {
     return _firestore
         .collection('community_posts')
         .doc(postId)
         .collection('comments')
         .orderBy('timestamp', descending: true)
-        .snapshots();
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => Comment.fromFirestore(doc)).toList());
+  }
+
+  Future<void> deleteComment(String postId, String commentId) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final commentRef = _firestore
+        .collection('community_posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId);
+    
+    final comment = await commentRef.get();
+    if (comment.exists && comment['authorId'] == user.uid) {
+      await commentRef.delete();
+    }
+  }
+
+  Future<int> getCommentCount(String postId) async {
+    final snapshot = await _firestore
+        .collection('community_posts')
+        .doc(postId)
+        .collection('comments')
+        .get();
+    return snapshot.docs.length;
   }
 }

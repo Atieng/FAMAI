@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:famai/screens/chat/conversations_screen.dart';
+import 'package:famai/screens/ai/ai_assistant_screen.dart';
 import 'package:famai/screens/map/map_screen.dart'; // Using new MapScreen implementation
 import 'package:famai/screens/calendar/calendar_screen.dart';
 import 'package:famai/screens/climate/climate_screen.dart'; // Weather screen
@@ -19,11 +19,11 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   static final List<Widget> _widgetOptions = <Widget>[
-    const ConversationsScreen(),  // AI (Conversation screen)
-    const CommunityScreen(),      // FamCom 
-    const MapScreen(),            // Famap (center highlighted button) - Using new implementation
-    const ClimateScreen(),        // Weather screen (formerly Notifications)
-    const CalendarScreen(),       // Calendar
+    const AIAssistantScreen(),      // AI Assistant (new implementation)
+    const CommunityScreen(),        // FamCom 
+    const MapScreen(),              // Famap (center highlighted button) - Using new implementation
+    const ClimateScreen(),          // Weather screen (formerly Notifications)
+    const CalendarScreen(),         // Calendar
   ];
 
   void _onItemTapped(int index) {

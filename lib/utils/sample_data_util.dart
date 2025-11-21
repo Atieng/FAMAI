@@ -2,12 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:famai/models/field_data_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 class SampleDataUtil {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Uuid _uuid = const Uuid();
   
   /// Populates the database with sample fields for demonstration
   Future<void> populateSampleFields() async {
@@ -69,9 +67,8 @@ class SampleDataUtil {
     }
     
     // Create a sample conversation
-    final conversationId = _uuid.v4();
-    await conversationsRef.doc(conversationId).set({
-      'id': conversationId,
+    final conversationRef = conversationsRef.doc();
+    await conversationRef.set({
       'title': 'Farm Planning Advice',
       'lastMessage': 'What crops would grow well in sandy soil?',
       'lastMessageTimestamp': FieldValue.serverTimestamp(),
@@ -79,7 +76,7 @@ class SampleDataUtil {
     });
     
     // Add messages to the conversation
-    final messagesRef = conversationsRef.doc(conversationId).collection('messages');
+    final messagesRef = conversationRef.collection('messages');
     
     final messages = [
       {
@@ -88,7 +85,7 @@ class SampleDataUtil {
         'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 2)),
       },
       {
-        'author': 'ai',
+        'author': 'model',
         'message': 'Hi there! I\'d be happy to help with your farming questions. What would you like to know?',
         'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 2)),
       },
@@ -98,17 +95,18 @@ class SampleDataUtil {
         'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 1)),
       },
       {
-        'author': 'ai',
+        'author': 'model',
         'message': 'Sandy soil is well-suited for crops like carrots, radishes, potatoes, lettuce, strawberries, and certain herbs. These plants thrive in the good drainage that sandy soil provides. You might also consider melons, cucumbers, and corn with proper fertilization. Would you like specific recommendations for your region?',
         'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 1)),
       },
     ];
     
     for (var message in messages) {
+      final timestamp = message['timestamp'] as DateTime;
       await messagesRef.add({
         'author': message['author'],
         'message': message['message'],
-        'timestamp': message['timestamp'],
+        'timestamp': Timestamp.fromDate(timestamp),
       });
     }
   }
