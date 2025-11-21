@@ -48,3 +48,4 @@ app.*.map.json
 lib/utils/secrets.dart
 android/app/google-services.json
 android/app/src/main/res/values/strings.xml
+lib/services/chat_service.dart
