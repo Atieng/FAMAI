@@ -1,6 +1,5 @@
 # FamAI - Agricultural AI Assistant for Kenyan Farmers
 
-![FamAI Logo](assets/Famai/Screenshot_2025-11-21-12-31-45-198_com.shujaacode.famai.jpg)
 
 ## 🌱 Project Overview
 
